@@ -1,0 +1,16 @@
+{
+    "name": "malltina/malltina",
+    "autoload": {
+        "psr-4": {
+            "kernel\\": "kernel/",
+            "App\\": "app/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Hamed Najari",
+            "email": "vhamed02@gmail.com"
+        }
+    ],
+    "require": {}
+}
