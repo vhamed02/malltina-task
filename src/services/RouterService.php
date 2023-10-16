@@ -32,8 +32,20 @@ class RouterService
     public function resolveController()
     {
         if ($route = $this->findRoute()) {
-            $controller = new $route[0];
             try {
+                if(!class_exists($route[0])) {
+                    throw new \Exception(sprintf("Class [%s] does not exists!", $route[0]));
+                }
+                if(!method_exists($route[0], $route[1])) {
+                    throw new \Exception(
+                        sprintf(
+                            "The method [%s] does not defined in [%s] class!",
+                            $route[1],
+                            $route[0]
+                        )
+                    );
+                }
+                $controller = new $route[0];
                 return call_user_func([$controller, $route[1]], new RequestHelper());
             } catch (\Exception $exception) {
                 JsonResponse::create([
