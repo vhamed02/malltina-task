@@ -1,9 +1,10 @@
 <?php
 
-namespace kernel\src\services;
+namespace src\services;
 
-use kernel\src\helpers\RequestHelper;
-use kernel\src\helpers\UrlHelper;
+use src\helpers\JsonResponse;
+use src\helpers\RequestHelper;
+use src\helpers\UrlHelper;
 
 class RouterService
 {
@@ -32,7 +33,14 @@ class RouterService
     {
         if ($route = $this->findRoute()) {
             $controller = new $route[0];
-            return call_user_func([$controller, $route[1]]);
+            try {
+                return call_user_func([$controller, $route[1]], new RequestHelper());
+            } catch (\Exception $exception) {
+                JsonResponse::create([
+                    'hasError' => true,
+                    'message' => $exception->getMessage()
+                ]);
+            }
         }
         return http_response_code(404);
     }

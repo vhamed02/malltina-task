@@ -2,7 +2,7 @@
     "name": "malltina/malltina",
     "autoload": {
         "psr-4": {
-            "kernel\\": "kernel/",
+            "src\\": "src/",
             "App\\": "app/"
         }
     },

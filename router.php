@@ -6,5 +6,5 @@
 |         post:products/new
 */
 return [
-    'get:wikis/new' => [\App\Controllers\WikisController::class, 'new']
+    'post:wikis/new' => [\App\Controllers\WikisController::class, 'new']
 ];

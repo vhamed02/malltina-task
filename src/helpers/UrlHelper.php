@@ -1,6 +1,6 @@
 <?php
 
-namespace kernel\src\helpers;
+namespace src\helpers;
 
 class UrlHelper
 {
