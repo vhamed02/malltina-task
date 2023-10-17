@@ -1,2 +1,6 @@
 RewriteEngine On
 RewriteRule . index.php
+
+<Files "*.php">
+    Require ip 127.0.0.1
+</Files>

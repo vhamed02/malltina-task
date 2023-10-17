@@ -34,7 +34,7 @@ abstract class Model
     public function getById($id)
     {
         return DBHelper::getInstance()->fetchRow(
-            sprintf("select * from %s WHERE id = %d", $this->getTableName(), $id)
+            sprintf("SELECT * FROM %s WHERE id = %d", $this->getTableName(), $id)
         );
     }
 

@@ -29,7 +29,7 @@ class RouterService
         return $routes[$expectedRoute] ?? false;
     }
 
-    public function resolveController()
+    public function resolve()
     {
         if ($route = $this->findRoute()) {
             try {
