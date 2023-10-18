@@ -7,10 +7,10 @@
 */
 return [
     'get' => [
-        'wikis/find/{id}' => [\App\Controllers\WikisController::class, 'find'],
-        'wikis/search' => [\App\Controllers\WikisController::class, 'search'],
+        'api/wikis/find/{id}' => [\App\Controllers\WikisController::class, 'find'],
+        'api/wikis/search' => [\App\Controllers\WikisController::class, 'search'],
     ],
     'post' => [
-        'wikis/new' => [\App\Controllers\WikisController::class, 'store']
+        'api/wikis/new' => [\App\Controllers\WikisController::class, 'store']
     ]
 ];

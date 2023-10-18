@@ -50,19 +50,20 @@ class WikisController
             $results = DBHelper::getInstance()->fetchAll($query);
 
             foreach ($results as $item) {
-                if (strpos($item['description'], $keyword)) {
-                    $descriptionWords = explode(' ', $item['description']);
-                    $relatedWikis[$item['id']] = array_search($keyword, $descriptionWords);
-                }
+                $descriptionWords = explode(' ', $item['description']);
+                $relatedWikis[$item['id']] = array_search($keyword, $descriptionWords);
             }
 
             if ($wiki) {
                 return JsonResponse::create([
-                    'id' => $wiki['id'],
-                    'title' => $wiki['title'],
-                    'description' => $wiki['description'],
-                    'image' => $wiki['image'],
-                    'related' => $relatedWikis
+                    'status' => 200,
+                    'results' => [
+                        'id' => $wiki['id'],
+                        'title' => $wiki['title'],
+                        'description' => $wiki['description'],
+                        'image' => $wiki['image'],
+                        'related' => $relatedWikis
+                    ]
                 ]);
             }
 
