@@ -6,5 +6,11 @@
 |         post:products/new
 */
 return [
-    'post:wikis/new' => [\App\Controllers\WikisController::class, 'store']
+    'get' => [
+        'wikis/find/{id}' => [\App\Controllers\WikisController::class, 'find'],
+        'wikis/search' => [\App\Controllers\WikisController::class, 'search'],
+    ],
+    'post' => [
+        'wikis/new' => [\App\Controllers\WikisController::class, 'store']
+    ]
 ];

@@ -38,4 +38,18 @@ abstract class Model
         );
     }
 
+    public function where(string $param, string $operator, string|int $value, array $columns = [])
+    {
+        $tableName = $this->getTableName();
+        if (is_string($value)) {
+            $value = sprintf("'%s'", $value);
+        }
+        if (empty($columns)) {
+            $columns = "*";
+        } else {
+            $columns = implode(',', $columns);
+        }
+        $query = "SELECT {$columns} FROM {$tableName} WHERE {$param} {$operator} {$value}";
+        return DBHelper::getInstance()->fetchAll($query);
+    }
 }

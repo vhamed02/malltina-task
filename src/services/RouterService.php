@@ -5,6 +5,7 @@ namespace src\services;
 use src\helpers\JsonResponse;
 use src\helpers\RequestHelper;
 use src\helpers\UrlHelper;
+use src\objects\Route;
 
 class RouterService
 {
@@ -25,18 +26,60 @@ class RouterService
     public function findRoute()
     {
         $routes = $this->getRoutes();
-        $expectedRoute = $this->requestHelper->getType() . ':' . $this->urlHelper->getRequestUri();
-        return $routes[$expectedRoute] ?? false;
+        $requestType = $this->requestHelper->getType();
+        $requestUri = $this->urlHelper->getRequestUri();
+
+        if (!isset($routes[$requestType])) {
+            return false;
+        }
+        if (isset($routes[$requestType][$requestUri])) {
+            return new Route(
+                $requestType,
+                $requestUri,
+                $routes[$requestType][$requestUri],
+                []
+            );
+        }
+        // if we reach here, means that the route doesn't found yet
+        $requestParts = $this->urlHelper->explodeRequestUri();
+        foreach ($routes[$requestType] as $route => $action) {
+            $routeParts = $this->urlHelper->explodeRequestUri($route);
+            if (count($routeParts) != count($requestParts))
+                continue;
+
+            $matched = true;
+            $params = array();
+            for ($i = 0; $i < count($routeParts); $i++) {
+                if (str_contains($routeParts[$i], '{')) {
+                    $params[str_replace(['{', '}'], '', $routeParts[$i])] = $requestParts[$i];
+                    break;
+                }
+                if ($routeParts[$i] != $requestParts[$i]) {
+                    $matched = false;
+                    break;
+                }
+            }
+            if ($matched) { // returns the first matched route
+                return new Route(
+                    $requestType,
+                    $route,
+                    $action,
+                    $params
+                );
+            }
+        }
+
+        return false;
     }
 
     public function resolve()
     {
-        if ($route = $this->findRoute()) {
-            try {
-                if(!class_exists($route[0])) {
+        try {
+            if ($route = $this->findRoute()) {
+                if (!class_exists($class = $route->getActionControllerClass())) {
                     throw new \Exception(sprintf("Class [%s] does not exists!", $route[0]));
                 }
-                if(!method_exists($route[0], $route[1])) {
+                if (!method_exists($class, $method = $route->getActionControllerMethod())) {
                     throw new \Exception(
                         sprintf(
                             "The method [%s] does not defined in [%s] class!",
@@ -45,15 +88,20 @@ class RouterService
                         )
                     );
                 }
-                $controller = new $route[0];
-                return call_user_func([$controller, $route[1]], new RequestHelper());
-            } catch (\Exception $exception) {
-                JsonResponse::create([
-                    'hasError' => true,
-                    'message' => $exception->getMessage()
-                ]);
+                $controller = new $class;
+
+                return call_user_func([$controller, $method], new RequestHelper($route->getParams()));
             }
+        } catch (\Exception $exception) {
+            JsonResponse::create([
+                'status' => 500,
+                'message' => $exception->getMessage()
+            ]);
         }
-        return http_response_code(404);
+
+        return JsonResponse::create([
+            'status' => 404,
+            'message' => 'not found'
+        ]);
     }
 }

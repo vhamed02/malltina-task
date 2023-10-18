@@ -15,12 +15,12 @@ class MysqliAdapter implements DBAdapter
 
     public function fetchAll(string $query)
     {
-        return $this->connection->query($query)->fetch_all();
+        return $this->connection->query($query)->fetch_all(MYSQLI_ASSOC);
     }
 
     public function fetchRow(string $query)
     {
-        return $this->connection->query($query)->fetch_row();
+        return $this->connection->query($query)->fetch_assoc();
     }
 
     public function exec(string $query)

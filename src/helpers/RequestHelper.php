@@ -4,10 +4,27 @@ namespace src\helpers;
 
 class RequestHelper
 {
+    private array $queryParams;
+
+    public function __construct(array $queryParams = [])
+    {
+        $this->queryParams = $queryParams;
+    }
+
+    public function getQueryParams(): array
+    {
+        return $this->queryParams;
+    }
+
+    public function hasQueryParam($param): bool
+    {
+        return array_key_exists($param, $this->queryParams);
+    }
+
     /**
      * @return string
      */
-    public function getType()
+    public function getType(): string
     {
         return strtolower($_SERVER['REQUEST_METHOD']);
     }
@@ -16,7 +33,7 @@ class RequestHelper
      * @param $index
      * @return mixed|null
      */
-    public function get($index)
+    public function get($index): mixed
     {
         return $_REQUEST[$index] ?? null;
     }
@@ -27,7 +44,7 @@ class RequestHelper
      * @return true
      * @throws \Exception
      */
-    public function validate(array $params)
+    public function checkNotEmpty(array $params): bool
     {
         foreach ($params as $item) {
             if (empty($this->get($item))) {
@@ -45,17 +62,14 @@ class RequestHelper
         $headers = null;
         if (isset($_SERVER['Authorization'])) {
             $headers = trim($_SERVER["Authorization"]);
-        } else if (isset($_SERVER['HTTP_AUTHORIZATION'])) { //Nginx or fast CGI
+        } else if (isset($_SERVER['HTTP_AUTHORIZATION'])) { // Nginx or fast CGI
             $headers = trim($_SERVER["HTTP_AUTHORIZATION"]);
         } elseif (function_exists('apache_request_headers')) {
             $requestHeaders = apache_request_headers();
             $requestHeaders = array_combine(
-                array_map('ucwords',
-                    array_keys($requestHeaders)
-                ),
+                array_map('ucwords', array_keys($requestHeaders)),
                 array_values($requestHeaders)
             );
-            //print_r($requestHeaders);
             if (isset($requestHeaders['Authorization'])) {
                 $headers = trim($requestHeaders['Authorization']);
             }
@@ -69,7 +83,6 @@ class RequestHelper
     public function getBearerToken(): ?string
     {
         $headers = $this->getAuthorizationHeader();
-        // HEADER: Get the access token from the header
         if (!empty($headers)) {
             if (preg_match('/Bearer\s(\S+)/', $headers, $matches)) {
                 return $matches[1];
