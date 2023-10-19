@@ -42,16 +42,21 @@ class WikisController
         if ($request->hasQueryParam('id')) {
             $wiki = $this->wikiModel->getById(intval($request->getQueryParams()['id']));
             $relatedWikis = []; // based on description
-            $keyword = $wiki['keyword'];
+            $keyword = trim($wiki['keyword']);
             $wikisTableName = $this->wikiModel->getTableName();
             $query = "SELECT id,description FROM {$wikisTableName} 
                       WHERE description LIKE '%{$keyword}%'
                       AND id != " . $wiki['id'];
             $results = DBHelper::getInstance()->fetchAll($query);
 
+            $keywordFirstPart = explode(' ', $keyword)[0];
             foreach ($results as $item) {
-                $descriptionWords = explode(' ', $item['description']);
-                $relatedWikis[$item['id']] = array_search($keyword, $descriptionWords);
+                $descriptionWords = explode(' ', trim($item['description']));
+                $descriptionWords = array_filter($descriptionWords, function ($item) {
+                    return trim($item) !== '';
+                });
+                $descriptionWords = array_values($descriptionWords);
+                $relatedWikis[$item['id']] = array_search($keywordFirstPart, $descriptionWords);
             }
 
             if ($wiki) {
